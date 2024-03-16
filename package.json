@@ -1,6 +1,6 @@
 {
   "name": "easy-logs-helper",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Customizable helper to log relevant info to standard output and a remote collector service, using custom adapters and/or default ones",
   "main": "index.js",
   "engines": {
