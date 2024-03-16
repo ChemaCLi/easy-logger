@@ -63,11 +63,11 @@ const logger = EasyLogger({
   customLogAdapters: [MyCustomAdapter],
   telemetryTimeoutInSecs: 8_000, // 10 seconds by default
   enableTelemetryMessages: true, // false by default
+  telemetryEndpointUrl: 'https://my-custom-log-server.com',
 })
 ```
 
-If you want to use the default remote API adapter, you need to set the following environment variables:
-- REMOTE_LOGS_API_URL
+If you want to use the default remote API adapter, you will need to pass the `telemetryEndpointUrl` param in the config.
 
 ## ⚙️ Custom adapters
 The logger is based on adapters. It has 2 default available adapters: 
