@@ -30,7 +30,7 @@ const EasyLogger = ({
   useDefaultStdOut && logAdapters.push(StdOutLogAdapter(baseLogData))
 
   const logTelemetry = () => {
-    let msg = `Checking for logs to send to remote API 🤖`
+    let msg = `Checking for logs to send to the remote API 🤖`
     if (logsToSendToRemoteAPI.length === 0) {
       msg += `: No pending chunks to send`
     }
@@ -46,10 +46,14 @@ const EasyLogger = ({
         const logs = logsToSendToRemoteAPI
         logsToSendToRemoteAPI = []
 
-        APILogAdapter({
-          ...baseLogData,
-          telemetryEndpointUrl,
-        }).log(logs)
+        try {
+          APILogAdapter({
+            ...baseLogData,
+            telemetryEndpointUrl,
+          }).log(logs)
+        } catch (error) {
+          console.error('Error while invoking the remote API logger', error)
+        }
         return;
       }
     }, telemetryTimeoutInSecs)

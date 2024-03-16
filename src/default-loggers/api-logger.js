@@ -1,4 +1,4 @@
-const { axios } = require('axios')
+const axios = require('axios')
 
 const APILogger = ({
   enableTelemetryMessages = false,
@@ -9,7 +9,12 @@ const APILogger = ({
   })
 
   const log = (chunk = []) => {
-    if (chunk.length === 0 || !baseUrl) {
+    if (chunk.length === 0) {
+      return
+    }
+
+    if (!telemetryEndpointUrl) {
+      console.warn('💤 Telemetry endpoint URL is not defined. Skipping sending logs to remote API')
       return
     }
 
@@ -18,6 +23,9 @@ const APILogger = ({
 
     fetcher.post('/', {
       logs: chunk,
+    })
+    .catch((error) => { // handle async errors
+      console.error('❌ Error while sending logs to remote API', error.errors)
     })
   }
 
