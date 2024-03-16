@@ -1,6 +1,8 @@
 const StdOutLogAdapter = require('./default-loggers/stout-logger')
 const APILogAdapter = require('./default-loggers/api-logger')
 
+/** @typedef {import('./jsdocs').BaseLogData} */
+
 /**
  * @param {BaseLogData} baseLogData
  */
@@ -46,24 +48,21 @@ const EasyLogger = ({
     })
   }
 
-  /**
-   * @param {Object} args
-   * @param {string} args.message
-   * @param {Object} args.data
-   */
-  const info = ({ message, data }) => {
-    const payload = buildLogPayload({ message, data, level: 'info' })
+  const info = ({ message, data, ...extraData }) => {
+    const payload = buildLogPayload({
+      message,
+      data: {
+        ...extraData,
+        ...data,
+      },
+      level: 'info'
+    })
     runLogAdapters(payload)
   }
 
-  /**
-   * @param {Error} error
-   * @param {Object} args
-   * @param {string} args.message
-   * @param {Object} args.data
-   */
+
   const error = (error, args) => {
-    const { message, data } = args || {}
+    const { message, data, ...extraData } = args || {}
 
     const errorData = {
       name: error.name,
@@ -73,7 +72,10 @@ const EasyLogger = ({
 
     const payload = buildLogPayload({
       message: message || error.message,
-      data,
+      data: {
+        ...extraData,
+        ...data,
+      },
       level: 'error',
       errorData,
     })
@@ -81,13 +83,7 @@ const EasyLogger = ({
     runLogAdapters(payload) 
   }
 
-  /**
-   * @param {Object} args
-   * @param {string} args.message
-   * @param {Object} args.data
-   * @param {Error} error
-   */
-  const dangerous = ({ message, data }, error) => {
+  const dangerous = ({ message, data, ...extraData }, error) => {
     const errorData = {}
 
     if (error) {
@@ -98,7 +94,10 @@ const EasyLogger = ({
 
     const payload = buildLogPayload({
       message,
-      data,
+      data: {
+        ...extraData,
+        ...data,
+      },
       level: 'dangerous',
       errorData,
     })
@@ -106,11 +105,28 @@ const EasyLogger = ({
     runLogAdapters(payload)
   }
 
-  return {
-    info,
-    error,
-    dangerous,
-  }
+  return (repetitiveData) => ({
+  /**
+   * @param {Object} args
+   * @param {string} args.message
+   * @param {Object} args.data
+   */
+    info: (args) => info({ ...repetitiveData, ...args }),
+  /**
+   * @param {Error} error
+   * @param {Object} args
+   * @param {string} args.message
+   * @param {Object} args.data
+   */
+    error: (err, args) => error(err, { ...repetitiveData, ...args }),
+    /**
+     * @param {Object} args
+     * @param {string} args.message
+     * @param {Object} args.data
+     * @param {Error} error
+     */
+    dangerous: (args, error) => dangerous({ ...repetitiveData, ...args }, error)
+  })
 }
 
 module.exports = EasyLogger
