@@ -41,6 +41,9 @@ const logger = EasyLogger({
 })
 ```
 
+If you want to use the default remote API adapter, you need to set the following environment variables:
+- REMOTE_LOGS_API_URL
+
 ## ⚙️ Custom adapters
 The logger is based on adapters. It has 2 default available adapters: 
 - StdoutLogAdapter: to print the logs to the console
