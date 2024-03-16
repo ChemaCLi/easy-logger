@@ -25,6 +25,8 @@ log.info({
   data: repetitiveData
 })
 
+log.info('You can pass a message only for the log.info method') // this will be threated as the message
+
 log.error(new Error('Something went wrong'), {
   message: 'An error occurred',
   data: repetitiveData

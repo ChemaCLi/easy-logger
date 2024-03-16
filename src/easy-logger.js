@@ -111,14 +111,34 @@ const EasyLogger = ({
    * @param {string} args.message
    * @param {Object} args.data
    */
-    info: (args) => info({ ...repetitiveData, ...args }),
+    info: (args) => {
+      let passedArgs = {
+        message: '',
+        data: {},
+      }
+
+      if (typeof args === 'string') { // if only message string is passed instead of object
+        passedArgs.message = args
+      } else if (typeof args === 'object') {
+        passedArgs = args
+      }
+
+      info({ ...repetitiveData, ...passedArgs })
+    },
   /**
    * @param {Error} error
    * @param {Object} args
    * @param {string} args.message
    * @param {Object} args.data
    */
-    error: (err, args) => error(err, { ...repetitiveData, ...args }),
+    error: (err, args) => {
+      let argsToPass = {}
+      if (args) {
+        argsToPass = args
+      }
+
+      error(err, { ...repetitiveData, ...argsToPass })
+    },
     /**
      * @param {Object} args
      * @param {string} args.message
