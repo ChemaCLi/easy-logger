@@ -1,3 +1,12 @@
+## EasyLogger
+A simple and easy to use logger for Node.js applications. It has a default StdoutLogAdapter and a default RemoteAPIAdapter. You can also create your own custom adapters.
+
+The RemoteAPIAdapter is a simple HTTPS POST request to a custom endpoint. You can use it to send the logs to a custom log server.
+
+You can disable the default adapters, and configure the RemoteAPIAdapter to send the logs every X seconds and to print the telemetry logs to the console.
+
+The RemoteAPIAdapter will send the logs in batches. You can configure the time interval to send the logs to the remote API.
+
 ## 👩🏻‍💻 How to use
 Import the EasyLogger and build an instance object:
 
@@ -39,15 +48,21 @@ log.dangerous({
 ```
 
 ## 🔧 Config
-You can attach some useful and generic metadata in the config.
-
-Also you can disable the default internal log adapters:
+You can attach some useful and generic metadata in the config. There are some options to configure
+the behavior of the logger.
+- You can disable the default internal log adapters and use only custom adapters
+- You can disable the default remote API adapter and use only the default StdoutLogAdapter
+- You can decide the time interval to send the logs to the remote API
+- You can choose to print the telemetry logs to the console
 ```js
 const logger = EasyLogger({
   microserviceName: 'PDF-files-generator',
   host: 'MainServer',
   useDefaultStdOut: true,
   useDefaultRemoteAPI: false, 
+  customLogAdapters: [MyCustomAdapter],
+  telemetryTimeoutInSecs: 8_000, // 10 seconds by default
+  enableTelemetryMessages: true, // false by default
 })
 ```
 

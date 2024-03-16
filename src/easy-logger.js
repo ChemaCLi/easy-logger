@@ -1,17 +1,15 @@
 const StdOutLogAdapter = require('./default-loggers/stout-logger')
 const APILogAdapter = require('./default-loggers/api-logger')
 
-/** @typedef {import('./jsdocs').BaseLogData} */
-
-/**
- * @param {BaseLogData} baseLogData
- */
 const EasyLogger = ({
   microserviceName = 'microservice-not-specified',
   host = 'host-not-specified',
   useDefaultStdOut = true,
   useDefaultRemoteAPI = false,
   customLogAdapters = [],
+  telemetryTimeoutInSecs = 10_000,
+  enableTelemetryMessages = false,
+  telemetryEndpointUrl = '',
 }) => {
   const baseLogData = {
     host,
@@ -19,14 +17,43 @@ const EasyLogger = ({
     customLogAdapters,
     microserviceName,
     useDefaultRemoteAPI,
+    telemetryTimeoutInSecs,
+    enableTelemetryMessages,
   }
 
   const logAdapters = [
     ...customLogAdapters.map((constructBuildAdapter) => constructBuildAdapter(baseLogData)),
   ]
 
+  let logsToSendToRemoteAPI = []
+
   useDefaultStdOut && logAdapters.push(StdOutLogAdapter(baseLogData))
-  useDefaultRemoteAPI && logAdapters.push(APILogAdapter(baseLogData))
+
+  const logTelemetry = () => {
+    let msg = `Checking for logs to send to remote API 🤖`
+    if (logsToSendToRemoteAPI.length === 0) {
+      msg += `: No pending chunks to send`
+    }
+
+    console.info(msg)
+  }
+
+  if (useDefaultRemoteAPI) {
+    setInterval(() => {
+      enableTelemetryMessages && logTelemetry()
+      
+      if (logsToSendToRemoteAPI.length > 0) {
+        const logs = logsToSendToRemoteAPI
+        logsToSendToRemoteAPI = []
+
+        APILogAdapter({
+          ...baseLogData,
+          telemetryEndpointUrl,
+        }).log(logs)
+        return;
+      }
+    }, telemetryTimeoutInSecs)
+  }
 
   const buildLogPayload = ({ message, data, level, errorData }) => ({
     microserviceName,
@@ -39,6 +66,10 @@ const EasyLogger = ({
   })
 
   const runLogAdapters = (data) => {
+    if (useDefaultRemoteAPI) {
+      logsToSendToRemoteAPI.push(data)
+    }
+
     logAdapters.forEach((adapter) => {
       try {
         adapter.log(data)

@@ -1,15 +1,24 @@
-const axios = require('axios')
+const { axios } = require('axios')
 
-const APILogger = () => {
-  const baseUrl = process.env.REMOTE_LOGS_API_URL
-
+const APILogger = ({
+  enableTelemetryMessages = false,
+  telemetryEndpointUrl,
+}) => {
   const fetcher = axios.create({
-    baseURL: baseUrl,
+    baseURL: telemetryEndpointUrl,
   })
 
-  const log = (data) => {
-    if (!baseUrl) return;
-    fetcher.post('/logs', data).catch(console.error)
+  const log = (chunk = []) => {
+    if (chunk.length === 0 || !baseUrl) {
+      return
+    }
+
+    enableTelemetryMessages &&
+      console.info(`Sending chunk to the API 📦. Size of the chunk: ${chunk.length}`)
+
+    fetcher.post('/', {
+      logs: chunk,
+    })
   }
 
   return {
