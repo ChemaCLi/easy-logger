@@ -37,7 +37,13 @@ const EasyLogger = ({
   })
 
   const runLogAdapters = (data) => {
-    logAdapters.forEach((adapter) => adapter.log(data))
+    logAdapters.forEach((adapter) => {
+      try {
+        adapter.log(data)
+      } catch (error) {
+        console.error('Error while running log adapter', error)
+      }
+    })
   }
 
   /**
