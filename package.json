@@ -1,5 +1,5 @@
 {
-  "name": "easy-logs",
+  "name": "easy-logs-helper",
   "version": "1.0.0",
   "description": "This is a helper to log relevant info to standard output and a remove collector service",
   "main": "index.js",
